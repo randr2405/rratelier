@@ -7,6 +7,8 @@
   --gold-light: #D9A94F;
   --purple: #5B2E7E;
   --purple-deep: #3A1A52;
+  --green: #3E7C4A;
+  --red: #B03434;
 }
 
 * {
@@ -283,21 +285,77 @@ body {
   cursor: pointer;
 }
 
+/* Whole-day note */
+.day-note {
+  width: 100%;
+  background: rgba(183,134,44,0.06);
+  border: 1px dashed rgba(183,134,44,0.4);
+  border-radius: 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--purple-deep);
+  padding: 8px 10px;
+  margin-bottom: 18px;
+  resize: vertical;
+}
+
+.day-note:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(183,134,44,0.1);
+}
+
+.day-note::placeholder {
+  color: rgba(58,26,82,0.4);
+}
+
+.slot-row-wrap {
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(91,46,126,0.2);
+}
+
 .slot-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px dashed rgba(91,46,126,0.2);
+  padding-bottom: 6px;
 }
 
-.slot-time {
+/* Time picker (hour / minute / AM-PM) */
+.time-picker {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.time-select {
+  border: none;
+  border-bottom: 1px solid rgba(183,134,44,0.4);
+  background: transparent;
   font-family: 'Playfair Display', serif;
   font-weight: 600;
-  max-width: 70px;
+  font-size: 0.85rem;
   color: var(--purple-deep);
-  font-size: 0.9rem;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+
+.time-select:focus {
+  outline: none;
+  border-bottom-color: var(--gold);
+}
+
+.time-ampm {
+  font-size: 0.75rem;
+  margin-left: 2px;
+}
+
+.time-colon {
+  color: var(--purple-deep);
+  font-weight: 600;
 }
 
 .slot-input {
@@ -322,7 +380,13 @@ body {
   font-style: italic;
 }
 
-.slot-payment {
+.slot-phone {
+  min-width: 90px;
+  max-width: 130px;
+}
+
+.slot-payment,
+.slot-status {
   flex: 1;
   min-width: 90px;
   border: none;
@@ -335,9 +399,41 @@ body {
   cursor: pointer;
 }
 
-.slot-payment:focus {
+.slot-payment:focus,
+.slot-status:focus {
   outline: none;
   border-bottom-color: var(--gold);
+}
+
+.slot-status-completed {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.slot-status-no-show {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.slot-notes {
+  width: 100%;
+  border: none;
+  border-bottom: none;
+  background: transparent;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: rgba(23,20,15,0.7);
+  padding: 2px 2px 0;
+  resize: none;
+}
+
+.slot-notes:focus {
+  outline: none;
+}
+
+.slot-notes::placeholder {
+  color: rgba(23,20,15,0.3);
 }
 
 .slot-delete {
@@ -448,12 +544,15 @@ body {
     font-size: 1.2rem;
   }
 
-  .slot-time {
-    max-width: 56px;
-    font-size: 0.8rem;
+  .time-select {
+    font-size: 0.75rem;
   }
 
   .slot-input {
     font-size: 0.95rem;
+  }
+
+  .slot-phone {
+    max-width: 100px;
   }
 }

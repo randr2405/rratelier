@@ -20,6 +20,24 @@ function formatDisplayDate(dateKey) {
 }
 
 const PAYMENT_TYPES = ['Cash', 'Card', 'EFT', 'Not paid yet'];
+const STATUS_TYPES = ['Upcoming', 'Completed', 'No-show'];
+const HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+const AMPM = ['AM', 'PM'];
+
+function defaultSlot(hour = '09', minute = '00', ampm = 'AM') {
+  return {
+    hour,
+    minute,
+    ampm,
+    client: '',
+    phone: '',
+    service: '',
+    payment: 'Not paid yet',
+    status: 'Upcoming',
+    notes: '',
+  };
+}
 
 let saveTimeout = null;
 let audioCtx = null;
@@ -32,7 +50,6 @@ function playPageFlipSound() {
     const ctx = audioCtx;
     const duration = 0.35;
 
-    // Create filtered white noise burst — sounds like a paper swoosh
     const bufferSize = ctx.sampleRate * duration;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -67,6 +84,7 @@ function playPageFlipSound() {
 
 export default function DiaryBook({ dateKey, onClose, onDateChange }) {
   const [slots, setSlots] = useState([]);
+  const [dayNote, setDayNote] = useState('');
   const [status, setStatus] = useState('');
   const [flipDirection, setFlipDirection] = useState(null);
   const [displayedKey, setDisplayedKey] = useState(dateKey);
@@ -76,24 +94,35 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
     const ref = doc(db, 'bookings', displayedKey);
     const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        setSlots(snap.data().slots || []);
+        const data = snap.data();
+        setSlots(
+          (data.slots || []).map((slot) => ({
+            ...defaultSlot(),
+            ...slot,
+          }))
+        );
+        setDayNote(data.dayNote || '');
       } else {
         setSlots([
-          { time: '09:00', client: '', service: '', payment: 'Not paid yet' },
-          { time: '10:00', client: '', service: '', payment: 'Not paid yet' },
-          { time: '11:00', client: '', service: '', payment: 'Not paid yet' },
+          defaultSlot('09', '00', 'AM'),
+          defaultSlot('10', '00', 'AM'),
+          defaultSlot('11', '00', 'AM'),
         ]);
+        setDayNote('');
       }
     });
     return () => unsubscribe();
   }, [displayedKey]);
 
-  function scheduleSave(nextSlots) {
+  function scheduleSave(nextSlots, nextDayNote) {
     setStatus('Saving...');
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(async () => {
       try {
-        await setDoc(doc(db, 'bookings', displayedKey), { slots: nextSlots });
+        await setDoc(doc(db, 'bookings', displayedKey), {
+          slots: nextSlots,
+          dayNote: nextDayNote,
+        });
         setStatus('Saved');
         setTimeout(() => setStatus(''), 1500);
       } catch (err) {
@@ -105,19 +134,24 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
   function updateSlot(index, field, value) {
     const next = slots.map((slot, i) => i === index ? { ...slot, [field]: value } : slot);
     setSlots(next);
-    scheduleSave(next);
+    scheduleSave(next, dayNote);
+  }
+
+  function updateDayNote(value) {
+    setDayNote(value);
+    scheduleSave(slots, value);
   }
 
   function addSlot() {
-    const next = [...slots, { time: '', client: '', service: '', payment: 'Not paid yet' }];
+    const next = [...slots, defaultSlot()];
     setSlots(next);
-    scheduleSave(next);
+    scheduleSave(next, dayNote);
   }
 
   function deleteSlot(index) {
     const next = slots.filter((_, i) => i !== index);
     setSlots(next);
-    scheduleSave(next);
+    scheduleSave(next, dayNote);
   }
 
   function turnPage(direction) {
@@ -147,39 +181,95 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
               <h2 className="diary-date">{formatDisplayDate(displayedKey)}</h2>
               <p className="diary-sub">Your Beauty, Our Craft.</p>
 
+              <textarea
+                className="day-note"
+                placeholder="Notes for the day (e.g. running late, closing early)..."
+                value={dayNote}
+                onChange={(e) => updateDayNote(e.target.value)}
+                rows={2}
+              />
+
               {slots.map((slot, index) => (
-                <div className="slot-row" key={index}>
-                  <input
-                    className="slot-input slot-time"
-                    type="text"
-                    placeholder="Time"
-                    value={slot.time}
-                    onChange={(e) => updateSlot(index, 'time', e.target.value)}
+                <div className="slot-row-wrap" key={index}>
+                  <div className="slot-row">
+                    <div className="time-picker">
+                      <select
+                        className="time-select"
+                        value={slot.hour}
+                        onChange={(e) => updateSlot(index, 'hour', e.target.value)}
+                      >
+                        {HOURS.map((h) => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                      <span className="time-colon">:</span>
+                      <select
+                        className="time-select"
+                        value={slot.minute}
+                        onChange={(e) => updateSlot(index, 'minute', e.target.value)}
+                      >
+                        {MINUTES.map((m) => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                      <select
+                        className="time-select time-ampm"
+                        value={slot.ampm}
+                        onChange={(e) => updateSlot(index, 'ampm', e.target.value)}
+                      >
+                        {AMPM.map((a) => (
+                          <option key={a} value={a}>{a}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <input
+                      className="slot-input"
+                      type="text"
+                      placeholder="Client name"
+                      value={slot.client}
+                      onChange={(e) => updateSlot(index, 'client', e.target.value)}
+                    />
+                    <input
+                      className="slot-input slot-phone"
+                      type="tel"
+                      placeholder="Phone"
+                      value={slot.phone}
+                      onChange={(e) => updateSlot(index, 'phone', e.target.value)}
+                    />
+                    <input
+                      className="slot-input"
+                      type="text"
+                      placeholder="Service"
+                      value={slot.service}
+                      onChange={(e) => updateSlot(index, 'service', e.target.value)}
+                    />
+                    <select
+                      className="slot-payment"
+                      value={slot.payment || 'Not paid yet'}
+                      onChange={(e) => updateSlot(index, 'payment', e.target.value)}
+                    >
+                      {PAYMENT_TYPES.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                    <select
+                      className={`slot-status slot-status-${(slot.status || 'Upcoming').toLowerCase().replace(' ', '-')}`}
+                      value={slot.status || 'Upcoming'}
+                      onChange={(e) => updateSlot(index, 'status', e.target.value)}
+                    >
+                      {STATUS_TYPES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <button className="slot-delete" onClick={() => deleteSlot(index)} aria-label="Remove slot">✕</button>
+                  </div>
+                  <textarea
+                    className="slot-notes"
+                    placeholder="Notes (allergies, preferences, etc.)"
+                    value={slot.notes || ''}
+                    onChange={(e) => updateSlot(index, 'notes', e.target.value)}
+                    rows={1}
                   />
-                  <input
-                    className="slot-input"
-                    type="text"
-                    placeholder="Client name"
-                    value={slot.client}
-                    onChange={(e) => updateSlot(index, 'client', e.target.value)}
-                  />
-                  <input
-                    className="slot-input"
-                    type="text"
-                    placeholder="Service"
-                    value={slot.service}
-                    onChange={(e) => updateSlot(index, 'service', e.target.value)}
-                  />
-                  <select
-                    className="slot-payment"
-                    value={slot.payment || 'Not paid yet'}
-                    onChange={(e) => updateSlot(index, 'payment', e.target.value)}
-                  >
-                    {PAYMENT_TYPES.map((type) => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                  <button className="slot-delete" onClick={() => deleteSlot(index)} aria-label="Remove slot">✕</button>
                 </div>
               ))}
 
