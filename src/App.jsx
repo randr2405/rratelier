@@ -3,8 +3,8 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import Calendar from './components/Calendar';
 import DiaryBook from './components/DiaryBook';
-import AdminLogin from './AdminLogin';
-import AdminDashboard from './AdminDashboard';
+import AdminLogin from './AdminLogin.jsx';
+import AdminDashboard from './AdminDashboard.jsx';
 
 export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
