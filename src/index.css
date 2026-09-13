@@ -145,7 +145,7 @@ body {
   background: var(--gold);
 }
 
-/* Diary flip modal */
+/* Diary flip modal overlay */
 .diary-overlay {
   position: fixed;
   inset: 0;
@@ -157,9 +157,38 @@ body {
   padding: 20px;
 }
 
+/* Real flip-book mechanics */
 .diary-book {
-  perspective: 1800px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
+  max-width: 560px;
+}
+
+.page-arrow {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.page-arrow:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.diary-page-container {
+  perspective: 1800px;
+  flex: 1;
   max-width: 460px;
 }
 
@@ -168,12 +197,33 @@ body {
   border-radius: 4px 14px 14px 4px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.35), inset 4px 0 8px rgba(0,0,0,0.05);
   padding: 30px 32px;
-  transform-origin: left center;
-  animation: pageFlipIn 0.5s ease forwards;
   border-left: 3px solid var(--purple);
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
+  transform-origin: left center;
+  transition: transform 0.42s ease, opacity 0.42s ease;
+  backface-visibility: hidden;
+}
+
+.diary-page-container.flipping-next .diary-page {
+  animation: flipNext 0.42s ease forwards;
+}
+
+.diary-page-container.flipping-prev .diary-page {
+  animation: flipPrev 0.42s ease forwards;
+}
+
+@keyframes flipNext {
+  0% { transform: rotateY(0deg); opacity: 1; }
+  50% { transform: rotateY(-95deg); opacity: 0.4; }
+  100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+@keyframes flipPrev {
+  0% { transform: rotateY(0deg); opacity: 1; }
+  50% { transform: rotateY(95deg); opacity: 0.4; }
+  100% { transform: rotateY(0deg); opacity: 1; }
 }
 
 @keyframes pageFlipIn {
@@ -216,6 +266,7 @@ body {
 .slot-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 0;
   border-bottom: 1px dashed rgba(91,46,126,0.2);
@@ -224,13 +275,14 @@ body {
 .slot-time {
   font-family: 'Playfair Display', serif;
   font-weight: 600;
-  width: 68px;
+  max-width: 70px;
   color: var(--purple-deep);
   font-size: 0.9rem;
 }
 
 .slot-input {
   flex: 1;
+  min-width: 100px;
   border: none;
   border-bottom: 1px solid rgba(183,134,44,0.4);
   background: transparent;
@@ -248,6 +300,24 @@ body {
 .slot-input::placeholder {
   color: rgba(23,20,15,0.35);
   font-style: italic;
+}
+
+.slot-payment {
+  flex: 1;
+  min-width: 90px;
+  border: none;
+  border-bottom: 1px solid rgba(183,134,44,0.4);
+  background: transparent;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  padding: 4px 2px;
+  color: var(--purple-deep);
+  cursor: pointer;
+}
+
+.slot-payment:focus {
+  outline: none;
+  border-bottom-color: var(--gold);
 }
 
 .slot-delete {
@@ -334,6 +404,17 @@ body {
   }
 
   .diary-book {
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .page-arrow {
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+  }
+
+  .diary-page-container {
     max-width: 100%;
   }
 
@@ -341,7 +422,6 @@ body {
     border-radius: 16px 16px 0 0;
     max-height: 90vh;
     padding: 24px 20px 30px;
-    animation: pageFlipInMobile 0.35s ease forwards;
   }
 
   .diary-date {
@@ -349,22 +429,11 @@ body {
   }
 
   .slot-time {
-    width: 56px;
+    max-width: 56px;
     font-size: 0.8rem;
   }
 
   .slot-input {
     font-size: 0.95rem;
-  }
-}
-
-@keyframes pageFlipInMobile {
-  from {
-    transform: translateY(40px);
-    opacity: 0.4;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
   }
 }
