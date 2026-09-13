@@ -33,6 +33,7 @@ function defaultSlot(hour = '09', minute = '00', ampm = 'AM') {
     client: '',
     phone: '',
     service: '',
+    amount: '',
     payment: 'Not paid yet',
     status: 'Upcoming',
     notes: '',
@@ -242,6 +243,13 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
                       placeholder="Service"
                       value={slot.service}
                       onChange={(e) => updateSlot(index, 'service', e.target.value)}
+                    />
+                    <input
+                      className="slot-input slot-amount"
+                      type="number"
+                      placeholder="R Amount"
+                      value={slot.amount}
+                      onChange={(e) => updateSlot(index, 'amount', e.target.value)}
                     />
                     <select
                       className="slot-payment"
