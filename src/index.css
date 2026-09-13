@@ -1,0 +1,370 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,500&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --cream: #FBF3E3;
+  --black: #17140F;
+  --gold: #B7862C;
+  --gold-light: #D9A94F;
+  --purple: #5B2E7E;
+  --purple-deep: #3A1A52;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--black);
+  font-family: 'Inter', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.app-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  margin: 0;
+  color: var(--black);
+}
+
+.app-header .crown {
+  color: var(--gold);
+  font-size: 1.4rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--purple-deep);
+  margin: 4px 0 0;
+}
+
+/* Calendar */
+.calendar-wrap {
+  background: #fff;
+  border: 1px solid rgba(183,134,44,0.35);
+  border-radius: 10px;
+  padding: 28px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 12px 30px rgba(58,26,82,0.08);
+}
+
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+}
+
+.calendar-nav button {
+  background: none;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.15s ease;
+}
+
+.calendar-nav button:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-grid .day-label {
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--purple-deep);
+  font-weight: 600;
+  padding-bottom: 6px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day:not(.empty):hover {
+  border-color: var(--gold);
+  background: rgba(183,134,44,0.08);
+}
+
+.calendar-day.today {
+  border-color: var(--purple);
+  font-weight: 600;
+}
+
+.calendar-day.has-bookings::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* Diary flip modal */
+.diary-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23,20,15,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.diary-book {
+  perspective: 1800px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.diary-page {
+  background: linear-gradient(135deg, #fffdf8, #FBF3E3);
+  border-radius: 4px 14px 14px 4px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35), inset 4px 0 8px rgba(0,0,0,0.05);
+  padding: 30px 32px;
+  transform-origin: left center;
+  animation: pageFlipIn 0.5s ease forwards;
+  border-left: 3px solid var(--purple);
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+@keyframes pageFlipIn {
+  from {
+    transform: rotateY(-90deg);
+    opacity: 0.3;
+  }
+  to {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+.diary-date {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--black);
+  margin: 0 0 4px;
+}
+
+.diary-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--purple-deep);
+  margin: 0 0 20px;
+  font-size: 1rem;
+}
+
+.diary-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(91,46,126,0.2);
+}
+
+.slot-time {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  width: 68px;
+  color: var(--purple-deep);
+  font-size: 0.9rem;
+}
+
+.slot-input {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid rgba(183,134,44,0.4);
+  background: transparent;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  padding: 4px 2px;
+  color: var(--black);
+}
+
+.slot-input:focus {
+  outline: none;
+  border-bottom-color: var(--gold);
+}
+
+.slot-input::placeholder {
+  color: rgba(23,20,15,0.35);
+  font-style: italic;
+}
+
+.slot-delete {
+  background: none;
+  border: none;
+  color: rgba(23,20,15,0.3);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.slot-delete:hover {
+  color: #b03434;
+}
+
+.add-slot-btn {
+  margin-top: 16px;
+  background: none;
+  border: 1px dashed var(--gold);
+  color: var(--gold);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.add-slot-btn:hover {
+  background: rgba(183,134,44,0.08);
+}
+
+.save-status {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--purple-deep);
+  margin-top: 14px;
+  min-height: 16px;
+  font-style: italic;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  #root {
+    padding: 20px 12px;
+  }
+
+  .app-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .app-header p {
+    font-size: 0.95rem;
+  }
+
+  .calendar-wrap {
+    padding: 18px;
+    border-radius: 8px;
+  }
+
+  .calendar-nav {
+    font-size: 1rem;
+  }
+
+  .calendar-nav button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .calendar-grid {
+    gap: 4px;
+  }
+
+  .calendar-day {
+    font-size: 0.78rem;
+    border-radius: 6px;
+  }
+
+  .calendar-grid .day-label {
+    font-size: 0.6rem;
+  }
+
+  .diary-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .diary-book {
+    max-width: 100%;
+  }
+
+  .diary-page {
+    border-radius: 16px 16px 0 0;
+    max-height: 90vh;
+    padding: 24px 20px 30px;
+    animation: pageFlipInMobile 0.35s ease forwards;
+  }
+
+  .diary-date {
+    font-size: 1.2rem;
+  }
+
+  .slot-time {
+    width: 56px;
+    font-size: 0.8rem;
+  }
+
+  .slot-input {
+    font-size: 0.95rem;
+  }
+}
+
+@keyframes pageFlipInMobile {
+  from {
+    transform: translateY(40px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
