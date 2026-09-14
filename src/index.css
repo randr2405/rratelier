@@ -310,17 +310,55 @@ body {
   color: rgba(58,26,82,0.4);
 }
 
-.slot-row-wrap {
-  padding: 10px 0;
-  border-bottom: 1px dashed rgba(91,46,126,0.2);
+/* Appointment cards */
+.no-appointments {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: rgba(23,20,15,0.5);
+  text-align: center;
+  padding: 20px 0;
 }
 
-.slot-row {
+.slot-card {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(183,134,44,0.3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.slot-card-conflict {
+  border-color: var(--red);
+  background: rgba(176,52,52,0.05);
+}
+
+.slot-conflict-banner {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--red);
+  background: rgba(176,52,52,0.08);
+  border-radius: 5px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.slot-card-header {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 10px;
-  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.slot-input-client {
+  flex: 1;
+  font-weight: 600;
+}
+
+.slot-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin-bottom: 6px;
 }
 
 /* Time picker (hour / minute / AM-PM) */
@@ -380,20 +418,8 @@ body {
   font-style: italic;
 }
 
-.slot-phone {
-  min-width: 90px;
-  max-width: 130px;
-}
-
-.slot-amount {
-  min-width: 80px;
-  max-width: 100px;
-}
-
 .slot-payment,
 .slot-status {
-  flex: 1;
-  min-width: 90px;
   border: none;
   border-bottom: 1px solid rgba(183,134,44,0.4);
   background: transparent;
@@ -478,6 +504,40 @@ body {
   font-style: italic;
 }
 
+/* Undo toast for deleted appointments */
+.undo-toast {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--black);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+.undo-toast-btn {
+  background: none;
+  border: none;
+  color: var(--gold-light);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+
+.undo-toast-btn:hover {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   #root {
@@ -557,8 +617,23 @@ body {
     font-size: 0.95rem;
   }
 
-  .slot-phone {
-    max-width: 100px;
+  .slot-card {
+    padding: 12px;
+  }
+
+  .slot-card-header {
+    flex-wrap: wrap;
+  }
+
+  .slot-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .undo-toast {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    justify-content: space-between;
   }
 }
 
