@@ -130,6 +130,109 @@ const BULK_STOCK_IMPORT = [
   { name: 'Magnets', quantity: 12 },
 ];
 
+// One-time bulk assignment: stock handed to a staff member, transcribed from the complete
+// handwritten "Day 1" hand-out sheet. Matched against BULK_STOCK_IMPORT names where the item
+// already exists (topping up that assignment); items with a code/name that doesn't match
+// anything already tracked are created fresh, with on-hand starting at 0 since all of it is
+// with staff. A few names below are genuine best-guess matches to the closest existing item —
+// see the accompanying notes before running this.
+const BULK_STAFF_ASSIGNMENT = {
+  staff: 'Lydia',
+  items: [
+    { name: 'Nail primer', quantity: 1 },
+    { name: 'Cuticle oil bottle', quantity: 2 },
+    { name: 'Cuticle oil pen', quantity: 1 },
+    { name: 'Black gel', quantity: 1 },
+    { name: 'White gel', quantity: 2 },
+    { name: 'Metallic liner gel', quantity: 1 },
+    { name: 'Red glitter gel', quantity: 1 },
+    { name: 'White glitter gel 093', quantity: 1 },
+    { name: 'Platinum gel 07', quantity: 1 },
+    { name: 'Platinum gel 34', quantity: 1 },
+    { name: 'Rose gold glitter gel', quantity: 1 },
+    { name: 'Temp change gel 65', quantity: 1 },
+    { name: 'Temp change gel 67', quantity: 1 },
+    { name: 'Temp change gel 58', quantity: 1 },
+    { name: 'Silver gel', quantity: 2 },
+    { name: 'Nail gold gel', quantity: 1 },
+    { name: 'Gel 055', quantity: 1 },
+    { name: 'Gel 095', quantity: 1 },
+    { name: 'Gel 072', quantity: 1 },
+    { name: 'Gel 022', quantity: 1 },
+    { name: 'Gel 088', quantity: 1 },
+    { name: 'Gel 059', quantity: 1 },
+    { name: 'Gel 100', quantity: 1 },
+    { name: 'Gel 074', quantity: 1 },
+    { name: 'Gel 062', quantity: 1 },
+    { name: 'Cat eye 20', quantity: 1 },
+    { name: 'Cat eye 17', quantity: 1 },
+    { name: 'Cat eye 21', quantity: 1 },
+    { name: 'Cat eye 24', quantity: 1 },
+    { name: 'Cat eye 13', quantity: 1 },
+    { name: 'Clear rubber base', quantity: 1 },
+    { name: 'Rubber base 25', quantity: 1 },
+    { name: 'Rubber base 28', quantity: 1 },
+    { name: 'Rubber base 16', quantity: 1 },
+    { name: 'Rubber base 22', quantity: 1 },
+    { name: 'Rubber base 41', quantity: 1 },
+    { name: 'Rubber base 30', quantity: 1 },
+    { name: 'Dipper dish', quantity: 1 },
+    { name: 'Nail stamp', quantity: 1 },
+    { name: 'Acrylic colour powders', quantity: 12 },
+    { name: 'Loose glitter', quantity: 7 },
+    { name: 'Spider gel (mixed)', quantity: 3 },
+    { name: 'Fiber builder gel', quantity: 1 },
+    { name: 'Diamond adhesive', quantity: 1 },
+    { name: 'Foil', quantity: 1 },
+    { name: 'Nail wipes', quantity: 200 },
+    { name: 'Pearl charms (container of 6)', quantity: 1 },
+    { name: 'Chrome', quantity: 1 },
+    { name: 'Square thick tips size 6 (360pc pack)', quantity: 1 },
+    { name: 'Round thick tips M (450pc pack)', quantity: 1 },
+    { name: 'Butterfly security charms (containers)', quantity: 1 },
+    { name: 'Flower charms (containers)', quantity: 1 },
+    { name: 'Rose charms (container of 6)', quantity: 1 },
+    { name: 'Nail file drill', quantity: 1 },
+    { name: 'UV nail lamp', quantity: 2 },
+    { name: 'Hand cushion', quantity: 1 },
+    { name: 'Soak off containers', quantity: 2 },
+    { name: 'Nail file', quantity: 3 },
+    { name: 'Nail buff', quantity: 1 },
+    { name: 'Nail brush', quantity: 9 },
+    { name: 'Nail clipper', quantity: 1 },
+    { name: 'Magnet for cat eye', quantity: 1 },
+    { name: 'Nail stamps', quantity: 6 },
+    { name: 'Cuticle pusher', quantity: 1 },
+    { name: 'Magnets', quantity: 12 },
+    { name: 'Nail bits', quantity: 5 },
+    { name: 'Nail monomer bottle', quantity: 1 },
+    { name: 'Hand sanitizer bottle', quantity: 1 },
+    { name: 'Acetone bottle', quantity: 1 },
+    { name: 'Nail glue', quantity: 2 },
+    { name: 'Monomer (1L)', quantity: 1 },
+    { name: 'Hand sanitizer (1L)', quantity: 1 },
+    { name: 'Acetone (1L)', quantity: 1 },
+    { name: 'Brush cleaner (120ml)', quantity: 1 },
+    { name: 'Hand sanitizer spray bottle', quantity: 1 },
+    { name: 'Acrylic base colours', quantity: 4 },
+    { name: 'Nail art dotting tool', quantity: 1 },
+    { name: 'Cuticle clipper', quantity: 1 },
+    { name: 'Rhinestone gripper', quantity: 1 },
+    { name: 'Tip cutter', quantity: 1 },
+    { name: 'Stickers', quantity: 3 },
+    { name: 'Sponge paint gel', quantity: 1 },
+    { name: 'Gold rhinestones', quantity: 1 },
+    { name: 'Silver rhinestones', quantity: 1 },
+    { name: 'Butterfly charms (container of 6)', quantity: 1 },
+    { name: 'Base coat', quantity: 2 },
+    { name: 'Top coat', quantity: 2 },
+    { name: 'Blooming gel', quantity: 1 },
+    { name: 'Foil sticky gel', quantity: 1 },
+    { name: 'Nail dehydrator', quantity: 1 },
+    { name: 'Nail hardener', quantity: 1 },
+  ],
+};
+
 function downloadCSV(rows, filename) {
   const csvContent = rows
     .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -158,6 +261,9 @@ export default function AdminDashboard({ onClose, onLogout }) {
   const [bulkImportCount, setBulkImportCount] = useState(0);
   const [expandedStockId, setExpandedStockId] = useState(null);
   const [assignDrafts, setAssignDrafts] = useState({}); // { [stockId]: { staff, qty } }
+  const [bulkAssignStatus, setBulkAssignStatus] = useState('idle'); // 'idle' | 'running' | 'done'
+  const [bulkAssignCount, setBulkAssignCount] = useState(0);
+  const [bulkAssignWarnings, setBulkAssignWarnings] = useState([]);
 
   useEffect(() => {
     const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot) => {
@@ -349,6 +455,69 @@ export default function AdminDashboard({ onClose, onLogout }) {
     });
   }
 
+  // Runs once: assigns every item in BULK_STAFF_ASSIGNMENT to that staff member. Matches by
+  // name (case-insensitive) against current stock; creates a new item if no match exists.
+  // Collects warnings for anything assigned beyond what was currently on hand, rather than
+  // blocking — these are surfaced after the run so they can be double-checked.
+  async function runBulkStaffAssignment() {
+    const { staff, items } = BULK_STAFF_ASSIGNMENT;
+    const confirmed = window.confirm(
+      `This will assign ${items.length} items to ${staff}, matching against your existing stock by name. Continue?`
+    );
+    if (!confirmed) return;
+
+    setBulkAssignStatus('running');
+    setBulkAssignCount(0);
+    const warnings = [];
+
+    for (const bulkItem of items) {
+      const existing = stock.find(
+        (s) => s.name.trim().toLowerCase() === bulkItem.name.trim().toLowerCase()
+      );
+
+      if (existing) {
+        const available = onHandQuantity(existing);
+        if (bulkItem.quantity > available) {
+          warnings.push(
+            `${bulkItem.name}: assigned ${bulkItem.quantity} but only ${available} was on hand.`
+          );
+        }
+
+        const assignments = [...(existing.assignments || [])];
+        const existingAssignIndex = assignments.findIndex(
+          (a) => a.staff.trim().toLowerCase() === staff.toLowerCase()
+        );
+        if (existingAssignIndex >= 0) {
+          assignments[existingAssignIndex] = {
+            ...assignments[existingAssignIndex],
+            quantity: (Number(assignments[existingAssignIndex].quantity) || 0) + bulkItem.quantity,
+          };
+        } else {
+          assignments.push({ staff, quantity: bulkItem.quantity });
+        }
+
+        await setDoc(doc(db, 'stock', existing.id), {
+          name: existing.name,
+          quantity: existing.quantity,
+          assignments,
+        });
+      } else {
+        // Not previously tracked — create it with total = what was given out, so on-hand starts at 0.
+        warnings.push(`${bulkItem.name}: wasn't in your stock list, so it was added new (total = ${bulkItem.quantity}, all with ${staff}).`);
+        await addDoc(collection(db, 'stock'), {
+          name: bulkItem.name,
+          quantity: bulkItem.quantity,
+          assignments: [{ staff, quantity: bulkItem.quantity }],
+        });
+      }
+
+      setBulkAssignCount((c) => c + 1);
+    }
+
+    setBulkAssignWarnings(warnings);
+    setBulkAssignStatus('done');
+  }
+
   // Runs once: adds every item in BULK_STOCK_IMPORT. If an item with the same name (case-insensitive)
   // already exists in stock, its quantity is topped up instead of creating a duplicate row.
   async function runBulkStockImport() {
@@ -493,6 +662,40 @@ export default function AdminDashboard({ onClose, onLogout }) {
               <p className="bulk-import-done">
                 ✓ Bulk import complete — {BULK_STOCK_IMPORT.length} items added/updated. You can remove this box from the code now.
               </p>
+            )}
+
+            {bulkAssignStatus !== 'done' && (
+              <div className="bulk-import-box">
+                <p className="bulk-import-text">
+                  One-time staff assignment: {BULK_STAFF_ASSIGNMENT.items.length} items to mark as issued to{' '}
+                  <strong>{BULK_STAFF_ASSIGNMENT.staff}</strong>, transcribed from the full "Day 1" hand-out sheet.
+                </p>
+                <button
+                  className="bulk-import-btn"
+                  onClick={runBulkStaffAssignment}
+                  disabled={bulkAssignStatus === 'running'}
+                >
+                  {bulkAssignStatus === 'running'
+                    ? `Assigning... (${bulkAssignCount}/${BULK_STAFF_ASSIGNMENT.items.length})`
+                    : `Assign ${BULK_STAFF_ASSIGNMENT.items.length} items to ${BULK_STAFF_ASSIGNMENT.staff}`}
+                </button>
+              </div>
+            )}
+
+            {bulkAssignStatus === 'done' && (
+              <div className="bulk-import-done">
+                <p>✓ Assignment complete — {BULK_STAFF_ASSIGNMENT.items.length} items processed for {BULK_STAFF_ASSIGNMENT.staff}.</p>
+                {bulkAssignWarnings.length > 0 && (
+                  <>
+                    <p className="bulk-assign-warning-title">Worth double-checking:</p>
+                    <ul className="bulk-assign-warning-list">
+                      {bulkAssignWarnings.map((w, i) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
             )}
 
             <div className="stock-add-row">
