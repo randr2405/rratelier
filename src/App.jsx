@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import Calendar from './components/Calendar';
+import WeekView from './components/WeekView';
 import DiaryBook from './components/DiaryBook';
 import AdminLogin from './AdminLogin.jsx';
 import AdminDashboard from './AdminDashboard.jsx';
 
 export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [weekStart, setWeekStart] = useState(new Date());
+  const [viewMode, setViewMode] = useState('month'); // 'month' | 'week'
   const [selectedDateKey, setSelectedDateKey] = useState(null);
   const [bookedDateKeys, setBookedDateKeys] = useState(new Set());
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -55,7 +58,7 @@ export default function App() {
     setShowAdminDashboard(false);
   }
 
-  // Admin dashboard is now a full screen, not a modal — it replaces the calendar view entirely.
+  // Admin dashboard is a full screen, not a modal — it replaces the calendar view entirely.
   if (showAdminDashboard && isAdmin) {
     return (
       <AdminDashboard
@@ -79,12 +82,35 @@ export default function App() {
         )}
       </div>
 
-      <Calendar
-        currentMonth={currentMonth}
-        onMonthChange={setCurrentMonth}
-        onSelectDate={handleSelectDate}
-        bookedDateKeys={bookedDateKeys}
-      />
+      <div className="view-toggle">
+        <button
+          className={`view-toggle-btn${viewMode === 'month' ? ' view-toggle-btn-active' : ''}`}
+          onClick={() => setViewMode('month')}
+        >
+          Month
+        </button>
+        <button
+          className={`view-toggle-btn${viewMode === 'week' ? ' view-toggle-btn-active' : ''}`}
+          onClick={() => setViewMode('week')}
+        >
+          Week
+        </button>
+      </div>
+
+      {viewMode === 'month' ? (
+        <Calendar
+          currentMonth={currentMonth}
+          onMonthChange={setCurrentMonth}
+          onSelectDate={handleSelectDate}
+          bookedDateKeys={bookedDateKeys}
+        />
+      ) : (
+        <WeekView
+          weekStart={weekStart}
+          onWeekChange={setWeekStart}
+          onSelectDate={handleSelectDate}
+        />
+      )}
 
       {selectedDateKey && (
         <DiaryBook dateKey={selectedDateKey} onClose={handleCloseDiary} />

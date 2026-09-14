@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import { buildClientDirectory } from './utils/clients';
 
 function todayKey() {
   const d = new Date();
@@ -14,14 +15,30 @@ function monthKeyFromDateKey(dateKey) {
   return dateKey.slice(0, 7); // "YYYY-MM"
 }
 
+function downloadCSV(rows, filename) {
+  const csvContent = rows
+    .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminDashboard({ onClose, onLogout }) {
-  const [activeTab, setActiveTab] = useState('reports'); // 'reports' | 'stock'
+  const [activeTab, setActiveTab] = useState('reports'); // 'reports' | 'stock' | 'clients'
   const [bookingDocs, setBookingDocs] = useState([]);
   const [stock, setStock] = useState([]);
   const [selectedDay, setSelectedDay] = useState(todayKey());
   const [newStockName, setNewStockName] = useState('');
   const [newStockQty, setNewStockQty] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
+  const [clientSearch, setClientSearch] = useState('');
 
   useEffect(() => {
     const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot) => {
@@ -73,6 +90,46 @@ export default function AdminDashboard({ onClose, onLogout }) {
     });
   });
 
+  const clientDirectory = useMemo(() => buildClientDirectory(bookingDocs), [bookingDocs]);
+
+  const clientList = useMemo(() => {
+    const list = Array.from(clientDirectory.values());
+    list.sort((a, b) => b.visitCount - a.visitCount);
+    const query = clientSearch.trim().toLowerCase();
+    if (!query) return list;
+    return list.filter(
+      (c) => c.name.toLowerCase().includes(query) || c.phone.toLowerCase().includes(query)
+    );
+  }, [clientDirectory, clientSearch]);
+
+  function exportMonthCSV() {
+    const rows = [
+      ['Date', 'Time', 'Client', 'Phone', 'Service', 'Amount', 'Payment', 'Status', 'Notes'],
+    ];
+
+    bookingDocs
+      .filter((bDoc) => bDoc.id.startsWith(selectedMonth))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .forEach((bDoc) => {
+        (bDoc.slots || []).forEach((slot) => {
+          if (!slot.client && !slot.service) return;
+          rows.push([
+            bDoc.id,
+            `${slot.hour}:${slot.minute} ${slot.ampm}`,
+            slot.client || '',
+            slot.phone || '',
+            slot.service || '',
+            slot.amount || '',
+            slot.payment || '',
+            slot.status || '',
+            (slot.notes || '').replace(/\n/g, ' '),
+          ]);
+        });
+      });
+
+    downloadCSV(rows, `bookings-${selectedMonth}.csv`);
+  }
+
   async function addStockItem() {
     if (!newStockName.trim()) return;
     await addDoc(collection(db, 'stock'), {
@@ -117,6 +174,12 @@ export default function AdminDashboard({ onClose, onLogout }) {
         >
           Stock
         </button>
+        <button
+          className={`admin-tab${activeTab === 'clients' ? ' admin-tab-active' : ''}`}
+          onClick={() => setActiveTab('clients')}
+        >
+          Clients
+        </button>
       </div>
 
       <div className="admin-page-content">
@@ -160,6 +223,12 @@ export default function AdminDashboard({ onClose, onLogout }) {
                   <span className="admin-stat-value">{noShowThisMonth}</span>
                 </div>
               </div>
+            </div>
+
+            <div className="admin-section">
+              <button className="export-csv-btn" onClick={exportMonthCSV}>
+                ⬇ Export {selectedMonth} as CSV
+              </button>
             </div>
           </>
         )}
@@ -208,6 +277,38 @@ export default function AdminDashboard({ onClose, onLogout }) {
                   />
                   {item.quantity <= lowStockThreshold && <span className="stock-low-badge">Low</span>}
                   <button className="slot-delete" onClick={() => deleteStockItem(item)} aria-label="Remove item">✕</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'clients' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <h3>Clients</h3>
+              <input
+                className="admin-input"
+                type="text"
+                placeholder="Search by name or phone..."
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="client-list">
+              {clientList.length === 0 && <p className="stock-empty">No clients found.</p>}
+              {clientList.map((client, i) => (
+                <div className="client-row" key={i}>
+                  <div className="client-row-main">
+                    <span className="client-row-name">{client.name || 'Unnamed client'}</span>
+                    <span className="client-row-phone">{client.phone}</span>
+                  </div>
+                  <div className="client-row-stats">
+                    <span>{client.visitCount} visit{client.visitCount === 1 ? '' : 's'}</span>
+                    <span>R{client.totalSpend.toFixed(2)} total</span>
+                    <span>Last: {client.lastVisit}</span>
+                  </div>
                 </div>
               ))}
             </div>

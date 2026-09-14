@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { buildClientDirectory, findClientByPhone, normalizePhone } from '../utils/clients';
 
 function toDateKey(date) {
   const y = date.getFullYear();
@@ -106,6 +107,10 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
   const [pendingDelete, setPendingDelete] = useState(null);
   const pendingDeleteTimeout = useRef(null);
 
+  // All bookings across every day, used to build the client directory for the
+  // "returning client" badge and the name/phone autocomplete.
+  const [allBookingDocs, setAllBookingDocs] = useState([]);
+
   useEffect(() => {
     const ref = doc(db, 'bookings', displayedKey);
     const unsubscribe = onSnapshot(ref, (snap) => {
@@ -127,11 +132,34 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
     return () => unsubscribe();
   }, [displayedKey]);
 
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'bookings'), (snapshot) => {
+      const docs = [];
+      snapshot.forEach((docSnap) => docs.push({ id: docSnap.id, ...docSnap.data() }));
+      setAllBookingDocs(docs);
+    });
+    return () => unsub();
+  }, []);
+
   // Clear any pending (unconfirmed) deletion when the day changes, so it doesn't leak across days.
   useEffect(() => {
     clearTimeout(pendingDeleteTimeout.current);
     setPendingDelete(null);
   }, [displayedKey]);
+
+  // Exclude the currently-displayed day so a client being booked "today" doesn't count as their own prior visit.
+  const clientDirectory = useMemo(
+    () => buildClientDirectory(allBookingDocs, displayedKey),
+    [allBookingDocs, displayedKey]
+  );
+
+  const clientNameOptions = useMemo(() => {
+    const names = new Set();
+    clientDirectory.forEach((entry) => {
+      if (entry.name) names.add(entry.name);
+    });
+    return Array.from(names).sort();
+  }, [clientDirectory]);
 
   const sortedSlots = [...slots].sort((a, b) => slotMinutes(a) - slotMinutes(b));
 
@@ -168,6 +196,23 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
     const next = slots.map((slot, i) => i === originalIndex ? { ...slot, [field]: value } : slot);
     setSlots(next);
     scheduleSave(next, dayNote);
+  }
+
+  // When a client name is typed/selected and matches exactly one known client, auto-fill their
+  // phone number if the phone field is still empty — saves re-typing for repeat clients.
+  function handleClientNameBlur(originalIndex, value) {
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) return;
+
+    const matches = [];
+    clientDirectory.forEach((entry) => {
+      if (entry.name.trim().toLowerCase() === trimmed) matches.push(entry);
+    });
+
+    const currentSlot = slots[originalIndex];
+    if (matches.length === 1 && !currentSlot.phone) {
+      updateSlot(originalIndex, 'phone', matches[0].phone);
+    }
   }
 
   function updateDayNote(value) {
@@ -245,16 +290,31 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
                 <p className="no-appointments">No appointments yet for this day.</p>
               )}
 
+              <datalist id="client-name-options">
+                {clientNameOptions.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+
               {sortedSlots.map((slot) => {
                 // Find this slot's real index in the unsorted `slots` array, so edits/deletes target the right one.
                 const originalIndex = slots.indexOf(slot);
                 const hasConflict = conflictMinutes.has(slotMinutes(slot));
+                const returningClient = normalizePhone(slot.phone)
+                  ? findClientByPhone(clientDirectory, slot.phone)
+                  : null;
 
                 return (
                   <div className={`slot-card${hasConflict ? ' slot-card-conflict' : ''}`} key={originalIndex}>
                     {hasConflict && (
                       <div className="slot-conflict-banner">
                         ⚠ Another appointment is also booked at {slotTimeLabel(slot)}
+                      </div>
+                    )}
+
+                    {returningClient && returningClient.visitCount > 0 && (
+                      <div className="slot-returning-badge">
+                        ★ Returning client — {returningClient.visitCount} previous visit{returningClient.visitCount === 1 ? '' : 's'}, last on {returningClient.lastVisit}
                       </div>
                     )}
 
@@ -294,8 +354,10 @@ export default function DiaryBook({ dateKey, onClose, onDateChange }) {
                         className="slot-input slot-input-client"
                         type="text"
                         placeholder="Client name"
+                        list="client-name-options"
                         value={slot.client}
                         onChange={(e) => updateSlot(originalIndex, 'client', e.target.value)}
+                        onBlur={(e) => handleClientNameBlur(originalIndex, e.target.value)}
                       />
 
                       <button
