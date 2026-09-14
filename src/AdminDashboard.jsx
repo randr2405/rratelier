@@ -14,7 +14,8 @@ function monthKeyFromDateKey(dateKey) {
   return dateKey.slice(0, 7); // "YYYY-MM"
 }
 
-export default function AdminDashboard({ onClose }) {
+export default function AdminDashboard({ onClose, onLogout }) {
+  const [activeTab, setActiveTab] = useState('reports'); // 'reports' | 'stock'
   const [bookingDocs, setBookingDocs] = useState([]);
   const [stock, setStock] = useState([]);
   const [selectedDay, setSelectedDay] = useState(todayKey());
@@ -91,98 +92,127 @@ export default function AdminDashboard({ onClose }) {
   }
 
   return (
-    <div className="admin-overlay" onClick={onClose}>
-      <div className="admin-dashboard" onClick={(e) => e.stopPropagation()}>
-        <button className="diary-close" onClick={onClose} aria-label="Close">✕</button>
-        <h2 className="admin-dashboard-title">Admin Dashboard</h2>
-
-        <div className="admin-section">
-          <div className="admin-section-header">
-            <h3>Revenue</h3>
-            <input
-              type="date"
-              className="admin-date-input"
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(e.target.value)}
-            />
-          </div>
-          <div className="admin-stat-row">
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Revenue on {selectedDay}</span>
-              <span className="admin-stat-value">R{dailyRevenue.toFixed(2)}</span>
-            </div>
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Revenue this month ({selectedMonth})</span>
-              <span className="admin-stat-value">R{monthlyRevenue.toFixed(2)}</span>
-            </div>
-          </div>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <div className="admin-page-header-left">
+          <span className="crown">♛</span>
+          <h1 className="admin-page-title">Admin Dashboard</h1>
         </div>
-
-        <div className="admin-section">
-          <h3>Booking Stats — {selectedMonth}</h3>
-          <div className="admin-stat-row">
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Total Clients</span>
-              <span className="admin-stat-value">{totalClientsThisMonth}</span>
-            </div>
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Completed</span>
-              <span className="admin-stat-value">{completedThisMonth}</span>
-            </div>
-            <div className="admin-stat-card admin-stat-card-warn">
-              <span className="admin-stat-label">No-shows</span>
-              <span className="admin-stat-value">{noShowThisMonth}</span>
-            </div>
-          </div>
+        <div className="admin-page-header-right">
+          <button className="admin-back-btn" onClick={onClose}>← Back to Calendar</button>
+          <button className="admin-logout-btn" onClick={onLogout}>Log Out</button>
         </div>
+      </div>
 
-        <div className="admin-section">
-          <h3>Stock</h3>
-          <div className="stock-add-row">
-            <input
-              className="admin-input"
-              type="text"
-              placeholder="Product name"
-              value={newStockName}
-              onChange={(e) => setNewStockName(e.target.value)}
-            />
-            <input
-              className="admin-input stock-qty-input"
-              type="number"
-              placeholder="Qty"
-              value={newStockQty}
-              onChange={(e) => setNewStockQty(e.target.value)}
-            />
-            <button className="add-slot-btn stock-add-btn" onClick={addStockItem}>+ Add</button>
-          </div>
+      <div className="admin-tabs">
+        <button
+          className={`admin-tab${activeTab === 'reports' ? ' admin-tab-active' : ''}`}
+          onClick={() => setActiveTab('reports')}
+        >
+          Reports
+        </button>
+        <button
+          className={`admin-tab${activeTab === 'stock' ? ' admin-tab-active' : ''}`}
+          onClick={() => setActiveTab('stock')}
+        >
+          Stock
+        </button>
+      </div>
 
-          <div className="low-stock-row">
-            <label>Low-stock alert below:</label>
-            <input
-              type="number"
-              className="admin-input stock-qty-input"
-              value={lowStockThreshold}
-              onChange={(e) => setLowStockThreshold(Number(e.target.value) || 0)}
-            />
-          </div>
-
-          <div className="stock-list">
-            {stock.length === 0 && <p className="stock-empty">No stock items yet.</p>}
-            {stock.map((item) => (
-              <div className={`stock-row${item.quantity <= lowStockThreshold ? ' stock-row-low' : ''}`} key={item.id}>
-                <span className="stock-name">{item.name}</span>
+      <div className="admin-page-content">
+        {activeTab === 'reports' && (
+          <>
+            <div className="admin-section">
+              <div className="admin-section-header">
+                <h3>Revenue</h3>
                 <input
-                  className="admin-input stock-qty-input"
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) => updateStockQty(item, e.target.value)}
+                  type="date"
+                  className="admin-date-input"
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(e.target.value)}
                 />
-                {item.quantity <= lowStockThreshold && <span className="stock-low-badge">Low</span>}
-                <button className="slot-delete" onClick={() => deleteStockItem(item)} aria-label="Remove item">✕</button>
               </div>
-            ))}
+              <div className="admin-stat-row">
+                <div className="admin-stat-card">
+                  <span className="admin-stat-label">Revenue on {selectedDay}</span>
+                  <span className="admin-stat-value">R{dailyRevenue.toFixed(2)}</span>
+                </div>
+                <div className="admin-stat-card">
+                  <span className="admin-stat-label">Revenue this month ({selectedMonth})</span>
+                  <span className="admin-stat-value">R{monthlyRevenue.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-section">
+              <h3>Booking Stats — {selectedMonth}</h3>
+              <div className="admin-stat-row">
+                <div className="admin-stat-card">
+                  <span className="admin-stat-label">Total Clients</span>
+                  <span className="admin-stat-value">{totalClientsThisMonth}</span>
+                </div>
+                <div className="admin-stat-card">
+                  <span className="admin-stat-label">Completed</span>
+                  <span className="admin-stat-value">{completedThisMonth}</span>
+                </div>
+                <div className="admin-stat-card admin-stat-card-warn">
+                  <span className="admin-stat-label">No-shows</span>
+                  <span className="admin-stat-value">{noShowThisMonth}</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'stock' && (
+          <div className="admin-section">
+            <h3>Stock</h3>
+            <div className="stock-add-row">
+              <input
+                className="admin-input"
+                type="text"
+                placeholder="Product name"
+                value={newStockName}
+                onChange={(e) => setNewStockName(e.target.value)}
+              />
+              <input
+                className="admin-input stock-qty-input"
+                type="number"
+                placeholder="Qty"
+                value={newStockQty}
+                onChange={(e) => setNewStockQty(e.target.value)}
+              />
+              <button className="add-slot-btn stock-add-btn" onClick={addStockItem}>+ Add</button>
+            </div>
+
+            <div className="low-stock-row">
+              <label>Low-stock alert below:</label>
+              <input
+                type="number"
+                className="admin-input stock-qty-input"
+                value={lowStockThreshold}
+                onChange={(e) => setLowStockThreshold(Number(e.target.value) || 0)}
+              />
+            </div>
+
+            <div className="stock-list">
+              {stock.length === 0 && <p className="stock-empty">No stock items yet.</p>}
+              {stock.map((item) => (
+                <div className={`stock-row${item.quantity <= lowStockThreshold ? ' stock-row-low' : ''}`} key={item.id}>
+                  <span className="stock-name">{item.name}</span>
+                  <input
+                    className="admin-input stock-qty-input"
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateStockQty(item, e.target.value)}
+                  />
+                  {item.quantity <= lowStockThreshold && <span className="stock-low-badge">Low</span>}
+                  <button className="slot-delete" onClick={() => deleteStockItem(item)} aria-label="Remove item">✕</button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

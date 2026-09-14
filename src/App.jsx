@@ -55,6 +55,16 @@ export default function App() {
     setShowAdminDashboard(false);
   }
 
+  // Admin dashboard is now a full screen, not a modal — it replaces the calendar view entirely.
+  if (showAdminDashboard && isAdmin) {
+    return (
+      <AdminDashboard
+        onClose={() => setShowAdminDashboard(false)}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   return (
     <>
       <div className="app-header">
@@ -82,10 +92,6 @@ export default function App() {
 
       {showAdminLogin && (
         <AdminLogin onSuccess={handleAdminLoginSuccess} onClose={() => setShowAdminLogin(false)} />
-      )}
-
-      {showAdminDashboard && isAdmin && (
-        <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
     </>
   );
