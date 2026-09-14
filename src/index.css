@@ -678,6 +678,52 @@ body {
   color: #fff;
 }
 
+/* One-time bulk stock import box */
+.bulk-import-box {
+  background: rgba(91,46,126,0.06);
+  border: 1px dashed var(--purple);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.bulk-import-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  color: var(--purple-deep);
+  margin: 0 0 10px;
+}
+
+.bulk-import-btn {
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bulk-import-btn:hover {
+  background: var(--purple-deep);
+}
+
+.bulk-import-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bulk-import-done {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  color: var(--green);
+  background: rgba(62,124,74,0.08);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
+
 /* Clients tab */
 .client-list {
   display: flex;
@@ -1157,6 +1203,117 @@ body {
   border: 1px solid rgba(183,134,44,0.25);
   border-radius: 8px;
   padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.stock-row-wrap {
+  margin-bottom: 8px;
+}
+
+.stock-row-wrap.stock-row-low .stock-row {
+  border-color: rgba(176,52,52,0.5);
+  background: rgba(176,52,52,0.04);
+}
+
+.stock-qty-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stock-qty-label {
+  font-size: 0.7rem;
+  color: rgba(23,20,15,0.5);
+  font-family: 'Inter', sans-serif;
+}
+
+.stock-onhand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  min-width: 50px;
+}
+
+.stock-onhand-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--purple-deep);
+}
+
+.stock-onhand-label {
+  font-size: 0.65rem;
+  color: rgba(23,20,15,0.5);
+  font-family: 'Inter', sans-serif;
+}
+
+.stock-staff-toggle {
+  background: none;
+  border: 1px solid rgba(91,46,126,0.4);
+  color: var(--purple-deep);
+  border-radius: 14px;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s ease;
+}
+
+.stock-staff-toggle:hover {
+  background: rgba(91,46,126,0.08);
+}
+
+.stock-staff-panel {
+  background: rgba(91,46,126,0.04);
+  border: 1px solid rgba(91,46,126,0.15);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 10px 12px;
+  margin-top: -1px;
+}
+
+.stock-staff-empty {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: rgba(23,20,15,0.5);
+  margin: 0 0 8px;
+}
+
+.stock-staff-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.stock-staff-name {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+}
+
+.stock-staff-return-btn {
+  background: none;
+  border: none;
+  color: var(--green);
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  text-decoration: underline;
+}
+
+.stock-staff-add-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(91,46,126,0.2);
+}
+
+.stock-staff-add-row .admin-input {
+  flex: 1;
+  min-width: 100px;
 }
 
 .stock-row-low {
