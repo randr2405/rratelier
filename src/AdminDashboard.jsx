@@ -27,109 +27,6 @@ function assignedTotalQuantity(item) {
   return (item.assignments || []).reduce((sum, a) => sum + (Number(a.quantity) || 0), 0);
 }
 
-// One-time full stock reset, built entirely from the owner's own manually-typed recount
-// (total quantity + how much of that total is currently with Lydia). This replaces every
-// previous stock entry rather than trying to merge on top of earlier, less reliable guesses.
-const STOCK_RESET = {
-  staff: 'Lydia',
-  items: [
-    { name: 'Cuticle oil pen', total: 4, withStaff: 1 },
-    { name: 'Cuticle oil bottle', total: 2, withStaff: 2 },
-    { name: 'Foil', total: 2, withStaff: 1 },
-    { name: 'Sand bits', total: 100, withStaff: 5 },
-    { name: 'Cuticle clipper', total: 1, withStaff: 1 },
-    { name: 'Rhinestone gripper', total: 1, withStaff: 1 },
-    { name: 'Nail glue', total: 5, withStaff: 2 },
-    { name: 'Chrome', total: 3, withStaff: 1 },
-    { name: 'Butterfly charms (silver and gold)', total: 2, withStaff: 1 },
-    { name: 'Lint wipes', total: 200, withStaff: 200 },
-    { name: 'Pearl charms', total: 1, withStaff: 1 },
-    { name: 'Bow charms', total: 1, withStaff: 1 },
-    { name: 'Flower charms', total: 1, withStaff: 1 },
-    { name: 'Butterfly colour charms', total: 1, withStaff: 1 },
-    { name: 'Square soft gel tips (500pc pack)', total: 1, withStaff: 0 },
-    { name: 'Square thick tips XL', total: 1, withStaff: 1 },
-    { name: 'Round thick tips M', total: 1, withStaff: 1 },
-    { name: 'UV nail lamp', total: 2, withStaff: 1 },
-    { name: 'Nail file drill', total: 1, withStaff: 1 },
-    { name: 'Hand cushion', total: 1, withStaff: 1 },
-    { name: 'Nail art dotting tool', total: 5, withStaff: 1 },
-    { name: 'Container', total: 1, withStaff: 0 },
-    { name: 'Refill lint', total: 600, withStaff: 0 },
-    { name: 'Sponge paint gel', total: 1, withStaff: 1 },
-    { name: 'Rhinestones (gold and silver)', total: 2, withStaff: 1 },
-    { name: 'Hand sanitizer 1L', total: 1, withStaff: 1 },
-    { name: 'Acetone 1L', total: 1, withStaff: 1 },
-    { name: 'Monomer 1L', total: 1, withStaff: 1 },
-    { name: 'Acrylic powder', total: 5, withStaff: 5 },
-    { name: 'Soak off containers', total: 2, withStaff: 2 },
-    { name: 'Tip cutter', total: 1, withStaff: 1 },
-    { name: 'Planet nail hand sanitizer spray bottle', total: 1, withStaff: 1 },
-    { name: 'Brush cleaner 120ml', total: 1, withStaff: 1 },
-    { name: 'Base coat', total: 4, withStaff: 2 },
-    { name: 'Top coat', total: 5, withStaff: 2 },
-    { name: 'Blooming gel', total: 2, withStaff: 1 },
-    { name: 'Foil sticky gel', total: 2, withStaff: 1 },
-    { name: 'Nail dehydrator', total: 1, withStaff: 1 },
-    { name: 'Nail hardener', total: 1, withStaff: 1 },
-    { name: 'Nail primer', total: 1, withStaff: 1 },
-    { name: 'White gel', total: 2, withStaff: 1 },
-    { name: 'Diamond adhesive', total: 2, withStaff: 1 },
-    { name: 'Fiber builder gel', total: 2, withStaff: 1 },
-    { name: 'Black gel', total: 1, withStaff: 1 },
-    { name: 'Red glitter gel', total: 1, withStaff: 1 },
-    { name: 'White glitter gel (thick)', total: 1, withStaff: 1 },
-    { name: 'White glitter gel (thin)', total: 1, withStaff: 0 },
-    { name: 'Metallic liner gel', total: 1, withStaff: 1 },
-    { name: 'Platinum gel 07', total: 1, withStaff: 1 },
-    { name: 'Platinum gel 34', total: 1, withStaff: 1 },
-    { name: 'Rose gold glitter gel', total: 1, withStaff: 1 },
-    { name: 'Temp change gel 67', total: 1, withStaff: 1 },
-    { name: 'Temp change gel 65', total: 1, withStaff: 1 },
-    { name: 'Temp change gel 58', total: 1, withStaff: 1 },
-    { name: 'Silver gel', total: 2, withStaff: 1 },
-    { name: 'Nail gold gel', total: 1, withStaff: 1 },
-    { name: 'Gel 055', total: 1, withStaff: 1 },
-    { name: 'Gel 095', total: 1, withStaff: 1 },
-    { name: 'Gel 062', total: 1, withStaff: 1 },
-    { name: 'Gel 074', total: 1, withStaff: 1 },
-    { name: 'Gel 100', total: 1, withStaff: 1 },
-    { name: 'Gel 098', total: 1, withStaff: 1 },
-    { name: 'Gel 088', total: 1, withStaff: 1 },
-    { name: 'Gel 022', total: 1, withStaff: 1 },
-    { name: 'Gel 072', total: 1, withStaff: 1 },
-    { name: 'Cat eye 12', total: 1, withStaff: 1 },
-    { name: 'Cat eye 15', total: 1, withStaff: 1 },
-    { name: 'Cat eye 24', total: 1, withStaff: 1 },
-    { name: 'Cat eye 10', total: 1, withStaff: 1 },
-    { name: 'Cat eye 21', total: 1, withStaff: 1 },
-    { name: 'Cat eye 17', total: 1, withStaff: 1 },
-    { name: 'Cat eye 20', total: 1, withStaff: 1 },
-    { name: 'Clear rubber base', total: 1, withStaff: 1 },
-    { name: 'Rubber base 28', total: 1, withStaff: 1 },
-    { name: 'Rubber base 23', total: 1, withStaff: 1 },
-    { name: 'Rubber base 41', total: 1, withStaff: 1 },
-    { name: 'Rubber base 16', total: 1, withStaff: 1 },
-    { name: 'Rubber base 30', total: 1, withStaff: 1 },
-    { name: 'Rubber base 22', total: 1, withStaff: 1 },
-    { name: 'Loose glitter (all colours)', total: 7, withStaff: 7 },
-    { name: 'Dipper dish', total: 1, withStaff: 1 },
-    { name: 'Spider gel', total: 3, withStaff: 3 },
-    { name: 'Nail stamp', total: 1, withStaff: 1 },
-    { name: 'Stickers', total: 3, withStaff: 3 },
-    { name: 'Acrylic colour powders', total: 12, withStaff: 12 },
-    { name: 'Nail duster', total: 2, withStaff: 2 },
-    { name: 'Nail buff', total: 3, withStaff: 1 },
-    { name: 'Nail file', total: 5, withStaff: 3 },
-    { name: 'Magnet for cat eye', total: 1, withStaff: 1 },
-    { name: 'Nail stamps', total: 6, withStaff: 6 },
-    { name: 'Nail clipper', total: 1, withStaff: 1 },
-    { name: 'Nail brush', total: 17, withStaff: 9 },
-    { name: 'Cuticle pusher', total: 1, withStaff: 1 },
-    { name: 'Magnets', total: 12, withStaff: 12 },
-  ],
-};
-
 function downloadCSV(rows, filename) {
   const csvContent = rows
     .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -149,6 +46,7 @@ export default function AdminDashboard({ onClose, onLogout }) {
   const [activeTab, setActiveTab] = useState('reports'); // 'reports' | 'stock' | 'clients'
   const [bookingDocs, setBookingDocs] = useState([]);
   const [stock, setStock] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [selectedDay, setSelectedDay] = useState(todayKey());
   const [newStockName, setNewStockName] = useState('');
   const [newStockQty, setNewStockQty] = useState('');
@@ -156,7 +54,9 @@ export default function AdminDashboard({ onClose, onLogout }) {
   const [clientSearch, setClientSearch] = useState('');
   const [expandedStockId, setExpandedStockId] = useState(null);
   const [assignDrafts, setAssignDrafts] = useState({}); // { [stockId]: { staff, qty } }
-  const [resetStatus, setResetStatus] = useState('idle'); // 'idle' | 'running' | 'done'
+  const [newExpenseDate, setNewExpenseDate] = useState(todayKey());
+  const [newExpenseAmount, setNewExpenseAmount] = useState('');
+  const [newExpenseNote, setNewExpenseNote] = useState('');
 
   useEffect(() => {
     const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot) => {
@@ -173,10 +73,19 @@ export default function AdminDashboard({ onClose, onLogout }) {
       });
       setStock(items);
     });
+    const unsubExpenses = onSnapshot(collection(db, 'expenses'), (snapshot) => {
+      const items = [];
+      snapshot.forEach((docSnap) => {
+        items.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      setExpenses(items);
+    });
     return () => {
       unsubBookings();
       unsubStock();
+      unsubExpenses();
     };
+
   }, []);
 
   const selectedMonth = monthKeyFromDateKey(selectedDay);
@@ -207,6 +116,30 @@ export default function AdminDashboard({ onClose, onLogout }) {
       }
     });
   });
+
+  // Expenses this month, and profit = revenue minus expenses.
+  const monthlyExpenseTotal = expenses
+    .filter((e) => (e.date || '').startsWith(selectedMonth))
+    .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const monthlyProfit = monthlyRevenue - monthlyExpenseTotal;
+
+  const sortedExpenses = [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  async function addExpense() {
+    const amount = parseFloat(newExpenseAmount);
+    if (!newExpenseDate || !amount || amount <= 0) return;
+    await addDoc(collection(db, 'expenses'), {
+      date: newExpenseDate,
+      amount,
+      note: newExpenseNote.trim(),
+    });
+    setNewExpenseAmount('');
+    setNewExpenseNote('');
+  }
+
+  async function deleteExpense(expenseId) {
+    await deleteDoc(doc(db, 'expenses', expenseId));
+  }
 
   const clientDirectory = useMemo(() => buildClientDirectory(bookingDocs), [bookingDocs]);
 
@@ -348,34 +281,6 @@ export default function AdminDashboard({ onClose, onLogout }) {
     });
   }
 
-  // One-time full reset: deletes every current stock item, then rebuilds the list from
-  // STOCK_RESET (the owner's own manually-typed recount), with Lydia's split baked in.
-  async function runStockReset() {
-    const confirmed = window.confirm(
-      `This will DELETE all ${stock.length} current stock items and replace them with ${STOCK_RESET.items.length} freshly entered ones (with ${STOCK_RESET.staff}'s split already set). This can't be undone. Continue?`
-    );
-    if (!confirmed) return;
-
-    setResetStatus('running');
-
-    for (const item of stock) {
-      await deleteDoc(doc(db, 'stock', item.id));
-    }
-
-    for (const item of STOCK_RESET.items) {
-      const assignments = item.withStaff > 0
-        ? [{ staff: STOCK_RESET.staff, quantity: item.withStaff }]
-        : [];
-      await addDoc(collection(db, 'stock'), {
-        name: item.name,
-        quantity: item.total,
-        assignments,
-      });
-    }
-
-    setResetStatus('done');
-  }
-
   return (
     <div className="admin-page">
       <div className="admin-page-header">
@@ -433,6 +338,55 @@ export default function AdminDashboard({ onClose, onLogout }) {
                   <span className="admin-stat-value">R{monthlyRevenue.toFixed(2)}</span>
                 </div>
               </div>
+              <div className="admin-stat-row admin-stat-row-spaced">
+                <div className="admin-stat-card admin-stat-card-warn">
+                  <span className="admin-stat-label">Expenses this month</span>
+                  <span className="admin-stat-value">R{monthlyExpenseTotal.toFixed(2)}</span>
+                </div>
+                <div className={`admin-stat-card${monthlyProfit < 0 ? ' admin-stat-card-warn' : ' admin-stat-card-profit'}`}>
+                  <span className="admin-stat-label">Profit this month</span>
+                  <span className="admin-stat-value">R{monthlyProfit.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-section">
+              <h3>Expenses</h3>
+              <div className="stock-add-row">
+                <input
+                  type="date"
+                  className="admin-input"
+                  value={newExpenseDate}
+                  onChange={(e) => setNewExpenseDate(e.target.value)}
+                />
+                <input
+                  className="admin-input stock-qty-input"
+                  type="number"
+                  placeholder="R Amount"
+                  value={newExpenseAmount}
+                  onChange={(e) => setNewExpenseAmount(e.target.value)}
+                />
+                <input
+                  className="admin-input"
+                  type="text"
+                  placeholder="Note (e.g. stock restock)"
+                  value={newExpenseNote}
+                  onChange={(e) => setNewExpenseNote(e.target.value)}
+                />
+                <button className="add-slot-btn stock-add-btn" onClick={addExpense}>+ Add</button>
+              </div>
+
+              <div className="expense-list">
+                {sortedExpenses.length === 0 && <p className="stock-empty">No expenses logged yet.</p>}
+                {sortedExpenses.map((expense) => (
+                  <div className="expense-row" key={expense.id}>
+                    <span className="expense-date">{expense.date}</span>
+                    <span className="expense-note">{expense.note || 'No note'}</span>
+                    <span className="expense-amount">R{(parseFloat(expense.amount) || 0).toFixed(2)}</span>
+                    <button className="slot-delete" onClick={() => deleteExpense(expense.id)} aria-label="Delete expense">✕</button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="admin-section">
@@ -464,29 +418,6 @@ export default function AdminDashboard({ onClose, onLogout }) {
         {activeTab === 'stock' && (
           <div className="admin-section">
             <h3>Stock</h3>
-
-            {resetStatus !== 'done' && (
-              <div className="bulk-import-box">
-                <p className="bulk-import-text">
-                  One-time reset: replaces all {stock.length} current stock items with a fresh,
-                  corrected recount ({STOCK_RESET.items.length} items), with {STOCK_RESET.staff}'s
-                  current split already set per item. This deletes the current list first — can't be undone.
-                </p>
-                <button
-                  className="bulk-import-btn"
-                  onClick={runStockReset}
-                  disabled={resetStatus === 'running'}
-                >
-                  {resetStatus === 'running' ? 'Resetting stock...' : `Reset stock (${STOCK_RESET.items.length} items)`}
-                </button>
-              </div>
-            )}
-
-            {resetStatus === 'done' && (
-              <p className="bulk-import-done">
-                ✓ Stock reset complete — {STOCK_RESET.items.length} items rebuilt. You can remove this box from the code now.
-              </p>
-            )}
 
             <div className="stock-add-row">
               <input

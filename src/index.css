@@ -724,6 +724,22 @@ body {
   margin-bottom: 18px;
 }
 
+.bulk-assign-warning-title {
+  color: var(--red);
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
+
+.bulk-assign-warning-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--red);
+}
+
+.bulk-assign-warning-list li {
+  margin-bottom: 3px;
+}
+
 /* Clients tab */
 .client-list {
   display: flex;
@@ -1137,6 +1153,53 @@ body {
 
 .admin-stat-card-warn {
   border-color: rgba(176,52,52,0.4);
+}
+
+.admin-stat-card-profit {
+  border-color: rgba(62,124,74,0.4);
+  background: rgba(62,124,74,0.04);
+}
+
+.admin-stat-row-spaced {
+  margin-top: 12px;
+}
+
+/* Expenses log */
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expense-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(183,134,44,0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.expense-date {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  color: var(--purple-deep);
+  min-width: 90px;
+}
+
+.expense-note {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: rgba(23,20,15,0.7);
+}
+
+.expense-amount {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--red);
 }
 
 .admin-stat-label {
