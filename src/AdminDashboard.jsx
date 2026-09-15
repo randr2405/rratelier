@@ -27,209 +27,106 @@ function assignedTotalQuantity(item) {
   return (item.assignments || []).reduce((sum, a) => sum + (Number(a.quantity) || 0), 0);
 }
 
-// One-time bulk stock import, transcribed from the handwritten stock-take list (Sept 2026 restock).
-// Quantities for packaged/boxed items (charms, tips, gel refills, etc.) are counted in
-// containers/packs, not individual pieces inside them, per how the list was written.
-// This is meant to be run once from the Stock tab, then can be removed from the code.
-const BULK_STOCK_IMPORT = [
-  { name: 'Cuticle oil pen', quantity: 14 },
-  { name: 'Cuticle oil bottle', quantity: 3 },
-  { name: 'Foil', quantity: 2 },
-  { name: 'Sand bits', quantity: 100 },
-  { name: 'Cuticle scissors', quantity: 1 },
-  { name: 'Rhinestone dapper', quantity: 1 },
-  { name: 'Nail glue', quantity: 10 },
-  { name: 'Butterfly charms (container of 6)', quantity: 2 },
-  { name: 'Chrome', quantity: 3 },
-  { name: 'Nail wipes', quantity: 200 },
-  { name: 'Pearl charms (container of 6)', quantity: 1 },
-  { name: 'Rose charms (container of 6)', quantity: 1 },
-  { name: 'Flower charms (containers)', quantity: 15 },
-  { name: 'Butterfly security charms (containers)', quantity: 12 },
-  { name: 'Square soft gel tips M (500pc pack)', quantity: 1 },
-  { name: 'Square thick tips size 6 (360pc pack)', quantity: 6 },
-  { name: 'Round thick tips M (450pc pack)', quantity: 1 },
-  { name: 'UV nail lamp', quantity: 2 },
-  { name: 'Nail file drill', quantity: 1 },
-  { name: 'Hand cushion', quantity: 1 },
-  { name: 'Nail art dotting tool', quantity: 5 },
-  { name: 'Container (28pc pack)', quantity: 1 },
-  { name: 'Refill lint disc', quantity: 600 },
-  { name: 'Sponge paint gel', quantity: 1 },
-  { name: 'Rhinestones (rigid + silver, container)', quantity: 1 },
-  { name: 'Hand sanitizer (1L)', quantity: 1 },
-  { name: 'Acetone (1L)', quantity: 1 },
-  { name: 'Monomer (1L)', quantity: 1 },
-  { name: 'Monomer (300ml)', quantity: 1 },
-  { name: 'Acrylic powder', quantity: 5 },
-  { name: 'Soak off containers', quantity: 2 },
-  { name: 'Tip cutter', quantity: 1 },
-  { name: 'Planet nail hand sanitizer', quantity: 1 },
-  { name: 'Brush cleaner (120ml)', quantity: 1 },
-  { name: 'Base coat', quantity: 4 },
-  { name: 'Top coat', quantity: 5 },
-  { name: 'Blooming gel', quantity: 3 },
-  { name: 'Fan sticky gel', quantity: 3 },
-  { name: 'Nail dehydrator', quantity: 1 },
-  { name: 'Nail hardener', quantity: 1 },
-  { name: 'Nail primer', quantity: 1 },
-  { name: 'White gel', quantity: 3 },
-  { name: 'Diamond adhesive', quantity: 2 },
-  { name: 'Fiber builder gel', quantity: 3 },
-  { name: 'Black gel', quantity: 1 },
-  { name: 'Red glitter gel', quantity: 1 },
-  { name: 'White glitter gel (thick)', quantity: 1 },
-  { name: 'White glitter gel (thin)', quantity: 1 },
-  { name: 'Metallic liner gel', quantity: 1 },
-  { name: 'Platinum gel 07', quantity: 1 },
-  { name: 'Platinum gel 34', quantity: 1 },
-  { name: 'Rose gold glitter gel', quantity: 1 },
-  { name: 'Temp change gel 01', quantity: 1 },
-  { name: 'Temp change gel 65', quantity: 1 },
-  { name: 'Temp change gel 58', quantity: 1 },
-  { name: 'Silver gel', quantity: 2 },
-  { name: 'Nail gold gel', quantity: 2 },
-  { name: 'Gel 055', quantity: 1 },
-  { name: 'Gel 002', quantity: 1 },
-  { name: 'Gel 074', quantity: 1 },
-  { name: 'Gel 100', quantity: 1 },
-  { name: 'Gel 098', quantity: 1 },
-  { name: 'Gel 088', quantity: 1 },
-  { name: 'Gel 022', quantity: 1 },
-  { name: 'Gel 072', quantity: 1 },
-  { name: 'Cat eye 13', quantity: 1 },
-  { name: 'Cat eye 15', quantity: 1 },
-  { name: 'Cat eye 24', quantity: 2 },
-  { name: 'Cat eye 10', quantity: 1 },
-  { name: 'Cat eye 21', quantity: 1 },
-  { name: 'Cat eye 17', quantity: 1 },
-  { name: 'Cat eye 20', quantity: 1 },
-  { name: 'Clear rubber base', quantity: 1 },
-  { name: 'Rubber base 28', quantity: 1 },
-  { name: 'Rubber base 23', quantity: 1 },
-  { name: 'Rubber base 41', quantity: 1 },
-  { name: 'Rubber base 16', quantity: 1 },
-  { name: 'Rubber base 30', quantity: 1 },
-  { name: 'Rubber base 22', quantity: 1 },
-  { name: 'Loose glitter', quantity: 7 },
-  { name: 'Dipper dish', quantity: 1 },
-  { name: 'Silver spider gel', quantity: 1 },
-  { name: 'Gold spider gel', quantity: 1 },
-  { name: 'White spider gel', quantity: 7 },
-  { name: 'Nail stamp', quantity: 1 },
-  { name: 'Stickers', quantity: 3 },
-  { name: 'Acrylic colour powders', quantity: 12 },
-  { name: 'Nail duster', quantity: 2 },
-  { name: 'Nail buff', quantity: 3 },
-  { name: 'Nail file', quantity: 5 },
-  { name: 'Magnet for cat eye', quantity: 1 },
-  { name: 'Nail stamps', quantity: 6 },
-  { name: 'Nail clipper', quantity: 1 },
-  { name: 'Nail brush', quantity: 17 },
-  { name: 'Cuticle pusher', quantity: 1 },
-  { name: 'Magnets', quantity: 12 },
-];
-
-// One-time bulk assignment: stock handed to a staff member, transcribed from the complete
-// handwritten "Day 1" hand-out sheet. Matched against BULK_STOCK_IMPORT names where the item
-// already exists (topping up that assignment); items with a code/name that doesn't match
-// anything already tracked are created fresh, with on-hand starting at 0 since all of it is
-// with staff. A few names below are genuine best-guess matches to the closest existing item —
-// see the accompanying notes before running this.
-const BULK_STAFF_ASSIGNMENT = {
+// One-time full stock reset, built entirely from the owner's own manually-typed recount
+// (total quantity + how much of that total is currently with Lydia). This replaces every
+// previous stock entry rather than trying to merge on top of earlier, less reliable guesses.
+const STOCK_RESET = {
   staff: 'Lydia',
   items: [
-    { name: 'Nail primer', quantity: 1 },
-    { name: 'Cuticle oil bottle', quantity: 2 },
-    { name: 'Cuticle oil pen', quantity: 1 },
-    { name: 'Black gel', quantity: 1 },
-    { name: 'White gel', quantity: 2 },
-    { name: 'Metallic liner gel', quantity: 1 },
-    { name: 'Red glitter gel', quantity: 1 },
-    { name: 'White glitter gel 093', quantity: 1 },
-    { name: 'Platinum gel 07', quantity: 1 },
-    { name: 'Platinum gel 34', quantity: 1 },
-    { name: 'Rose gold glitter gel', quantity: 1 },
-    { name: 'Temp change gel 65', quantity: 1 },
-    { name: 'Temp change gel 67', quantity: 1 },
-    { name: 'Temp change gel 58', quantity: 1 },
-    { name: 'Silver gel', quantity: 2 },
-    { name: 'Nail gold gel', quantity: 1 },
-    { name: 'Gel 055', quantity: 1 },
-    { name: 'Gel 095', quantity: 1 },
-    { name: 'Gel 072', quantity: 1 },
-    { name: 'Gel 022', quantity: 1 },
-    { name: 'Gel 088', quantity: 1 },
-    { name: 'Gel 059', quantity: 1 },
-    { name: 'Gel 100', quantity: 1 },
-    { name: 'Gel 074', quantity: 1 },
-    { name: 'Gel 062', quantity: 1 },
-    { name: 'Cat eye 20', quantity: 1 },
-    { name: 'Cat eye 17', quantity: 1 },
-    { name: 'Cat eye 21', quantity: 1 },
-    { name: 'Cat eye 24', quantity: 1 },
-    { name: 'Cat eye 13', quantity: 1 },
-    { name: 'Clear rubber base', quantity: 1 },
-    { name: 'Rubber base 25', quantity: 1 },
-    { name: 'Rubber base 28', quantity: 1 },
-    { name: 'Rubber base 16', quantity: 1 },
-    { name: 'Rubber base 22', quantity: 1 },
-    { name: 'Rubber base 41', quantity: 1 },
-    { name: 'Rubber base 30', quantity: 1 },
-    { name: 'Dipper dish', quantity: 1 },
-    { name: 'Nail stamp', quantity: 1 },
-    { name: 'Acrylic colour powders', quantity: 12 },
-    { name: 'Loose glitter', quantity: 7 },
-    { name: 'Spider gel (mixed)', quantity: 3 },
-    { name: 'Fiber builder gel', quantity: 1 },
-    { name: 'Diamond adhesive', quantity: 1 },
-    { name: 'Foil', quantity: 1 },
-    { name: 'Nail wipes', quantity: 200 },
-    { name: 'Pearl charms (container of 6)', quantity: 1 },
-    { name: 'Chrome', quantity: 1 },
-    { name: 'Square thick tips size 6 (360pc pack)', quantity: 1 },
-    { name: 'Round thick tips M (450pc pack)', quantity: 1 },
-    { name: 'Butterfly security charms (containers)', quantity: 1 },
-    { name: 'Flower charms (containers)', quantity: 1 },
-    { name: 'Rose charms (container of 6)', quantity: 1 },
-    { name: 'Nail file drill', quantity: 1 },
-    { name: 'UV nail lamp', quantity: 2 },
-    { name: 'Hand cushion', quantity: 1 },
-    { name: 'Soak off containers', quantity: 2 },
-    { name: 'Nail file', quantity: 3 },
-    { name: 'Nail buff', quantity: 1 },
-    { name: 'Nail brush', quantity: 9 },
-    { name: 'Nail clipper', quantity: 1 },
-    { name: 'Magnet for cat eye', quantity: 1 },
-    { name: 'Nail stamps', quantity: 6 },
-    { name: 'Cuticle pusher', quantity: 1 },
-    { name: 'Magnets', quantity: 12 },
-    { name: 'Nail bits', quantity: 5 },
-    { name: 'Nail monomer bottle', quantity: 1 },
-    { name: 'Hand sanitizer bottle', quantity: 1 },
-    { name: 'Acetone bottle', quantity: 1 },
-    { name: 'Nail glue', quantity: 2 },
-    { name: 'Monomer (1L)', quantity: 1 },
-    { name: 'Hand sanitizer (1L)', quantity: 1 },
-    { name: 'Acetone (1L)', quantity: 1 },
-    { name: 'Brush cleaner (120ml)', quantity: 1 },
-    { name: 'Hand sanitizer spray bottle', quantity: 1 },
-    { name: 'Acrylic base colours', quantity: 4 },
-    { name: 'Nail art dotting tool', quantity: 1 },
-    { name: 'Cuticle clipper', quantity: 1 },
-    { name: 'Rhinestone gripper', quantity: 1 },
-    { name: 'Tip cutter', quantity: 1 },
-    { name: 'Stickers', quantity: 3 },
-    { name: 'Sponge paint gel', quantity: 1 },
-    { name: 'Gold rhinestones', quantity: 1 },
-    { name: 'Silver rhinestones', quantity: 1 },
-    { name: 'Butterfly charms (container of 6)', quantity: 1 },
-    { name: 'Base coat', quantity: 2 },
-    { name: 'Top coat', quantity: 2 },
-    { name: 'Blooming gel', quantity: 1 },
-    { name: 'Foil sticky gel', quantity: 1 },
-    { name: 'Nail dehydrator', quantity: 1 },
-    { name: 'Nail hardener', quantity: 1 },
+    { name: 'Cuticle oil pen', total: 4, withStaff: 1 },
+    { name: 'Cuticle oil bottle', total: 2, withStaff: 2 },
+    { name: 'Foil', total: 2, withStaff: 1 },
+    { name: 'Sand bits', total: 100, withStaff: 5 },
+    { name: 'Cuticle clipper', total: 1, withStaff: 1 },
+    { name: 'Rhinestone gripper', total: 1, withStaff: 1 },
+    { name: 'Nail glue', total: 5, withStaff: 2 },
+    { name: 'Chrome', total: 3, withStaff: 1 },
+    { name: 'Butterfly charms (silver and gold)', total: 2, withStaff: 1 },
+    { name: 'Lint wipes', total: 200, withStaff: 200 },
+    { name: 'Pearl charms', total: 1, withStaff: 1 },
+    { name: 'Bow charms', total: 1, withStaff: 1 },
+    { name: 'Flower charms', total: 1, withStaff: 1 },
+    { name: 'Butterfly colour charms', total: 1, withStaff: 1 },
+    { name: 'Square soft gel tips (500pc pack)', total: 1, withStaff: 0 },
+    { name: 'Square thick tips XL', total: 1, withStaff: 1 },
+    { name: 'Round thick tips M', total: 1, withStaff: 1 },
+    { name: 'UV nail lamp', total: 2, withStaff: 1 },
+    { name: 'Nail file drill', total: 1, withStaff: 1 },
+    { name: 'Hand cushion', total: 1, withStaff: 1 },
+    { name: 'Nail art dotting tool', total: 5, withStaff: 1 },
+    { name: 'Container', total: 1, withStaff: 0 },
+    { name: 'Refill lint', total: 600, withStaff: 0 },
+    { name: 'Sponge paint gel', total: 1, withStaff: 1 },
+    { name: 'Rhinestones (gold and silver)', total: 2, withStaff: 1 },
+    { name: 'Hand sanitizer 1L', total: 1, withStaff: 1 },
+    { name: 'Acetone 1L', total: 1, withStaff: 1 },
+    { name: 'Monomer 1L', total: 1, withStaff: 1 },
+    { name: 'Acrylic powder', total: 5, withStaff: 5 },
+    { name: 'Soak off containers', total: 2, withStaff: 2 },
+    { name: 'Tip cutter', total: 1, withStaff: 1 },
+    { name: 'Planet nail hand sanitizer spray bottle', total: 1, withStaff: 1 },
+    { name: 'Brush cleaner 120ml', total: 1, withStaff: 1 },
+    { name: 'Base coat', total: 4, withStaff: 2 },
+    { name: 'Top coat', total: 5, withStaff: 2 },
+    { name: 'Blooming gel', total: 2, withStaff: 1 },
+    { name: 'Foil sticky gel', total: 2, withStaff: 1 },
+    { name: 'Nail dehydrator', total: 1, withStaff: 1 },
+    { name: 'Nail hardener', total: 1, withStaff: 1 },
+    { name: 'Nail primer', total: 1, withStaff: 1 },
+    { name: 'White gel', total: 2, withStaff: 1 },
+    { name: 'Diamond adhesive', total: 2, withStaff: 1 },
+    { name: 'Fiber builder gel', total: 2, withStaff: 1 },
+    { name: 'Black gel', total: 1, withStaff: 1 },
+    { name: 'Red glitter gel', total: 1, withStaff: 1 },
+    { name: 'White glitter gel (thick)', total: 1, withStaff: 1 },
+    { name: 'White glitter gel (thin)', total: 1, withStaff: 0 },
+    { name: 'Metallic liner gel', total: 1, withStaff: 1 },
+    { name: 'Platinum gel 07', total: 1, withStaff: 1 },
+    { name: 'Platinum gel 34', total: 1, withStaff: 1 },
+    { name: 'Rose gold glitter gel', total: 1, withStaff: 1 },
+    { name: 'Temp change gel 67', total: 1, withStaff: 1 },
+    { name: 'Temp change gel 65', total: 1, withStaff: 1 },
+    { name: 'Temp change gel 58', total: 1, withStaff: 1 },
+    { name: 'Silver gel', total: 2, withStaff: 1 },
+    { name: 'Nail gold gel', total: 1, withStaff: 1 },
+    { name: 'Gel 055', total: 1, withStaff: 1 },
+    { name: 'Gel 095', total: 1, withStaff: 1 },
+    { name: 'Gel 062', total: 1, withStaff: 1 },
+    { name: 'Gel 074', total: 1, withStaff: 1 },
+    { name: 'Gel 100', total: 1, withStaff: 1 },
+    { name: 'Gel 098', total: 1, withStaff: 1 },
+    { name: 'Gel 088', total: 1, withStaff: 1 },
+    { name: 'Gel 022', total: 1, withStaff: 1 },
+    { name: 'Gel 072', total: 1, withStaff: 1 },
+    { name: 'Cat eye 12', total: 1, withStaff: 1 },
+    { name: 'Cat eye 15', total: 1, withStaff: 1 },
+    { name: 'Cat eye 24', total: 1, withStaff: 1 },
+    { name: 'Cat eye 10', total: 1, withStaff: 1 },
+    { name: 'Cat eye 21', total: 1, withStaff: 1 },
+    { name: 'Cat eye 17', total: 1, withStaff: 1 },
+    { name: 'Cat eye 20', total: 1, withStaff: 1 },
+    { name: 'Clear rubber base', total: 1, withStaff: 1 },
+    { name: 'Rubber base 28', total: 1, withStaff: 1 },
+    { name: 'Rubber base 23', total: 1, withStaff: 1 },
+    { name: 'Rubber base 41', total: 1, withStaff: 1 },
+    { name: 'Rubber base 16', total: 1, withStaff: 1 },
+    { name: 'Rubber base 30', total: 1, withStaff: 1 },
+    { name: 'Rubber base 22', total: 1, withStaff: 1 },
+    { name: 'Loose glitter (all colours)', total: 7, withStaff: 7 },
+    { name: 'Dipper dish', total: 1, withStaff: 1 },
+    { name: 'Spider gel', total: 3, withStaff: 3 },
+    { name: 'Nail stamp', total: 1, withStaff: 1 },
+    { name: 'Stickers', total: 3, withStaff: 3 },
+    { name: 'Acrylic colour powders', total: 12, withStaff: 12 },
+    { name: 'Nail duster', total: 2, withStaff: 2 },
+    { name: 'Nail buff', total: 3, withStaff: 1 },
+    { name: 'Nail file', total: 5, withStaff: 3 },
+    { name: 'Magnet for cat eye', total: 1, withStaff: 1 },
+    { name: 'Nail stamps', total: 6, withStaff: 6 },
+    { name: 'Nail clipper', total: 1, withStaff: 1 },
+    { name: 'Nail brush', total: 17, withStaff: 9 },
+    { name: 'Cuticle pusher', total: 1, withStaff: 1 },
+    { name: 'Magnets', total: 12, withStaff: 12 },
   ],
 };
 
@@ -257,13 +154,9 @@ export default function AdminDashboard({ onClose, onLogout }) {
   const [newStockQty, setNewStockQty] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [clientSearch, setClientSearch] = useState('');
-  const [bulkImportStatus, setBulkImportStatus] = useState('idle'); // 'idle' | 'running' | 'done'
-  const [bulkImportCount, setBulkImportCount] = useState(0);
   const [expandedStockId, setExpandedStockId] = useState(null);
   const [assignDrafts, setAssignDrafts] = useState({}); // { [stockId]: { staff, qty } }
-  const [bulkAssignStatus, setBulkAssignStatus] = useState('idle'); // 'idle' | 'running' | 'done'
-  const [bulkAssignCount, setBulkAssignCount] = useState(0);
-  const [bulkAssignWarnings, setBulkAssignWarnings] = useState([]);
+  const [resetStatus, setResetStatus] = useState('idle'); // 'idle' | 'running' | 'done'
 
   useEffect(() => {
     const unsubBookings = onSnapshot(collection(db, 'bookings'), (snapshot) => {
@@ -455,100 +348,32 @@ export default function AdminDashboard({ onClose, onLogout }) {
     });
   }
 
-  // Runs once: assigns every item in BULK_STAFF_ASSIGNMENT to that staff member. Matches by
-  // name (case-insensitive) against current stock; creates a new item if no match exists.
-  // Collects warnings for anything assigned beyond what was currently on hand, rather than
-  // blocking — these are surfaced after the run so they can be double-checked.
-  async function runBulkStaffAssignment() {
-    const { staff, items } = BULK_STAFF_ASSIGNMENT;
+  // One-time full reset: deletes every current stock item, then rebuilds the list from
+  // STOCK_RESET (the owner's own manually-typed recount), with Lydia's split baked in.
+  async function runStockReset() {
     const confirmed = window.confirm(
-      `This will assign ${items.length} items to ${staff}, matching against your existing stock by name. Continue?`
+      `This will DELETE all ${stock.length} current stock items and replace them with ${STOCK_RESET.items.length} freshly entered ones (with ${STOCK_RESET.staff}'s split already set). This can't be undone. Continue?`
     );
     if (!confirmed) return;
 
-    setBulkAssignStatus('running');
-    setBulkAssignCount(0);
-    const warnings = [];
+    setResetStatus('running');
 
-    for (const bulkItem of items) {
-      const existing = stock.find(
-        (s) => s.name.trim().toLowerCase() === bulkItem.name.trim().toLowerCase()
-      );
-
-      if (existing) {
-        const available = onHandQuantity(existing);
-        if (bulkItem.quantity > available) {
-          warnings.push(
-            `${bulkItem.name}: assigned ${bulkItem.quantity} but only ${available} was on hand.`
-          );
-        }
-
-        const assignments = [...(existing.assignments || [])];
-        const existingAssignIndex = assignments.findIndex(
-          (a) => a.staff.trim().toLowerCase() === staff.toLowerCase()
-        );
-        if (existingAssignIndex >= 0) {
-          assignments[existingAssignIndex] = {
-            ...assignments[existingAssignIndex],
-            quantity: (Number(assignments[existingAssignIndex].quantity) || 0) + bulkItem.quantity,
-          };
-        } else {
-          assignments.push({ staff, quantity: bulkItem.quantity });
-        }
-
-        await setDoc(doc(db, 'stock', existing.id), {
-          name: existing.name,
-          quantity: existing.quantity,
-          assignments,
-        });
-      } else {
-        // Not previously tracked — create it with total = what was given out, so on-hand starts at 0.
-        warnings.push(`${bulkItem.name}: wasn't in your stock list, so it was added new (total = ${bulkItem.quantity}, all with ${staff}).`);
-        await addDoc(collection(db, 'stock'), {
-          name: bulkItem.name,
-          quantity: bulkItem.quantity,
-          assignments: [{ staff, quantity: bulkItem.quantity }],
-        });
-      }
-
-      setBulkAssignCount((c) => c + 1);
+    for (const item of stock) {
+      await deleteDoc(doc(db, 'stock', item.id));
     }
 
-    setBulkAssignWarnings(warnings);
-    setBulkAssignStatus('done');
-  }
-
-  // Runs once: adds every item in BULK_STOCK_IMPORT. If an item with the same name (case-insensitive)
-  // already exists in stock, its quantity is topped up instead of creating a duplicate row.
-  async function runBulkStockImport() {
-    const confirmed = window.confirm(
-      `This will add ${BULK_STOCK_IMPORT.length} items to your stock list (topping up quantity for any that already exist by name). Continue?`
-    );
-    if (!confirmed) return;
-
-    setBulkImportStatus('running');
-    setBulkImportCount(0);
-
-    for (const item of BULK_STOCK_IMPORT) {
-      const existing = stock.find(
-        (s) => s.name.trim().toLowerCase() === item.name.trim().toLowerCase()
-      );
-      if (existing) {
-        await setDoc(doc(db, 'stock', existing.id), {
-          name: existing.name,
-          quantity: (Number(existing.quantity) || 0) + item.quantity,
-          assignments: existing.assignments || [],
-        });
-      } else {
-        await addDoc(collection(db, 'stock'), {
-          name: item.name,
-          quantity: item.quantity,
-        });
-      }
-      setBulkImportCount((c) => c + 1);
+    for (const item of STOCK_RESET.items) {
+      const assignments = item.withStaff > 0
+        ? [{ staff: STOCK_RESET.staff, quantity: item.withStaff }]
+        : [];
+      await addDoc(collection(db, 'stock'), {
+        name: item.name,
+        quantity: item.total,
+        assignments,
+      });
     }
 
-    setBulkImportStatus('done');
+    setResetStatus('done');
   }
 
   return (
@@ -640,62 +465,27 @@ export default function AdminDashboard({ onClose, onLogout }) {
           <div className="admin-section">
             <h3>Stock</h3>
 
-            {bulkImportStatus !== 'done' && (
+            {resetStatus !== 'done' && (
               <div className="bulk-import-box">
                 <p className="bulk-import-text">
-                  One-time import: {BULK_STOCK_IMPORT.length} items transcribed from your recent stock-take.
-                  Existing items with a matching name will have their quantity topped up rather than duplicated.
+                  One-time reset: replaces all {stock.length} current stock items with a fresh,
+                  corrected recount ({STOCK_RESET.items.length} items), with {STOCK_RESET.staff}'s
+                  current split already set per item. This deletes the current list first — can't be undone.
                 </p>
                 <button
                   className="bulk-import-btn"
-                  onClick={runBulkStockImport}
-                  disabled={bulkImportStatus === 'running'}
+                  onClick={runStockReset}
+                  disabled={resetStatus === 'running'}
                 >
-                  {bulkImportStatus === 'running'
-                    ? `Importing... (${bulkImportCount}/${BULK_STOCK_IMPORT.length})`
-                    : `Import bulk stock list (${BULK_STOCK_IMPORT.length} items)`}
+                  {resetStatus === 'running' ? 'Resetting stock...' : `Reset stock (${STOCK_RESET.items.length} items)`}
                 </button>
               </div>
             )}
 
-            {bulkImportStatus === 'done' && (
+            {resetStatus === 'done' && (
               <p className="bulk-import-done">
-                ✓ Bulk import complete — {BULK_STOCK_IMPORT.length} items added/updated. You can remove this box from the code now.
+                ✓ Stock reset complete — {STOCK_RESET.items.length} items rebuilt. You can remove this box from the code now.
               </p>
-            )}
-
-            {bulkAssignStatus !== 'done' && (
-              <div className="bulk-import-box">
-                <p className="bulk-import-text">
-                  One-time staff assignment: {BULK_STAFF_ASSIGNMENT.items.length} items to mark as issued to{' '}
-                  <strong>{BULK_STAFF_ASSIGNMENT.staff}</strong>, transcribed from the full "Day 1" hand-out sheet.
-                </p>
-                <button
-                  className="bulk-import-btn"
-                  onClick={runBulkStaffAssignment}
-                  disabled={bulkAssignStatus === 'running'}
-                >
-                  {bulkAssignStatus === 'running'
-                    ? `Assigning... (${bulkAssignCount}/${BULK_STAFF_ASSIGNMENT.items.length})`
-                    : `Assign ${BULK_STAFF_ASSIGNMENT.items.length} items to ${BULK_STAFF_ASSIGNMENT.staff}`}
-                </button>
-              </div>
-            )}
-
-            {bulkAssignStatus === 'done' && (
-              <div className="bulk-import-done">
-                <p>✓ Assignment complete — {BULK_STAFF_ASSIGNMENT.items.length} items processed for {BULK_STAFF_ASSIGNMENT.staff}.</p>
-                {bulkAssignWarnings.length > 0 && (
-                  <>
-                    <p className="bulk-assign-warning-title">Worth double-checking:</p>
-                    <ul className="bulk-assign-warning-list">
-                      {bulkAssignWarnings.map((w, i) => (
-                        <li key={i}>{w}</li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-              </div>
             )}
 
             <div className="stock-add-row">
